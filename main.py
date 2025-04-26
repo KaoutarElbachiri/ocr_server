@@ -151,3 +151,43 @@ def supprimer_compte(data: dict):
     except Exception as e:
         return {"ok": False, "message": str(e)}
 
+
+@app.post("/force_create_admin")
+def force_create_admin(data: dict = Body(...)):
+    username = data.get("username")
+    mot_de_passe = data.get("mot_de_passe")
+    if not username or not mot_de_passe:
+        return {"ok": False, "message": "Champs manquants."}
+
+    try:
+        import csv
+        fieldnames = ["username", "password", "role"]
+        file_exists = os.path.isfile("users.csv")
+
+        with open("users.csv", "a", newline="") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            if not file_exists:
+                writer.writeheader()
+
+            # Avant de créer, vérifie que le compte n'existe pas
+            csvfile.seek(0)
+            already_exists = False
+            try:
+                rows = list(csv.DictReader(csvfile))
+                for row in rows:
+                    if row["username"] == username:
+                        already_exists = True
+                        break
+            except:
+                pass
+
+            if already_exists:
+                return {"ok": False, "message": "Utilisateur existe déjà."}
+
+            import hashlib
+            hash_pass = hashlib.sha256(mot_de_passe.encode()).hexdigest()
+            writer.writerow({"username": username, "password": hash_pass, "role": "admin"})
+        return {"ok": True, "message": "Admin créé."}
+    except Exception as e:
+        return {"ok": False, "message": str(e)}
+

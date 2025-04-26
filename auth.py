@@ -62,7 +62,7 @@ def supprimer_utilisateur(username):
         return False
 
     with open(path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["username", "mot_de_passe", "role"])
+        writer = csv.DictWriter(f, fieldnames=["username", "password", "role"])
         writer.writeheader()
         writer.writerows(lignes)
 

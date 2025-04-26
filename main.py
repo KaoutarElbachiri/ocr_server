@@ -128,7 +128,11 @@ def connexion(data: dict = Body(...)):
     username = data.get("username")
     mot_de_passe = data.get("mot_de_passe")
     ok, role = verifier_utilisateur(username, mot_de_passe)
-    return {"ok": ok, "role": role if ok else None}
+    if ok:
+        return {"ok": True, "role": role}
+    else:
+        return {"ok": False, "message": "Identifiants invalides"}
+
 
 @app.post("/supprimer_compte")
 def supprimer_compte(data: dict):

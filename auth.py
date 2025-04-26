@@ -42,3 +42,30 @@ def verifier_utilisateur(username, mot_de_passe):
 
     return False, None
 
+
+def supprimer_utilisateur(username):
+    path = "users.csv"
+    if not os.path.exists(path):
+        return False
+
+    lignes = []
+    found = False
+    with open(path, "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row["username"] != username:
+                lignes.append(row)
+            else:
+                found = True
+
+    if not found:
+        return False
+
+    with open(path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["username", "mot_de_passe", "role"])
+        writer.writeheader()
+        writer.writerows(lignes)
+
+    # (optionnel) Tu pourrais aussi supprimer son dossier foyer si tu veux
+    return True
+

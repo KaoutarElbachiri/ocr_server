@@ -129,3 +129,21 @@ def connexion(data: dict = Body(...)):
     mot_de_passe = data.get("mot_de_passe")
     ok, role = verifier_utilisateur(username, mot_de_passe)
     return {"ok": ok, "role": role if ok else None}
+
+@app.post("/supprimer_compte")
+def supprimer_compte(data: dict):
+    username = data.get("username")
+    if not username:
+        return {"ok": False, "message": "Nom d'utilisateur manquant."}
+
+    # Supprimer l'utilisateur
+    try:
+        from auth import supprimer_utilisateur
+        success = supprimer_utilisateur(username)
+        if success:
+            return {"ok": True, "message": "Compte supprimé."}
+        else:
+            return {"ok": False, "message": "Utilisateur non trouvé."}
+    except Exception as e:
+        return {"ok": False, "message": str(e)}
+

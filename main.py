@@ -191,3 +191,19 @@ def force_create_admin(data: dict = Body(...)):
     except Exception as e:
         return {"ok": False, "message": str(e)}
 
+@app.get("/users")
+def get_users():
+    users = []
+    try:
+        with open("users.csv", "r") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                users.append({
+                    "username": row["username"],
+                    "role": row["role"]
+                })
+    except Exception as e:
+        print("Erreur lecture users.csv :", e)
+
+    return users
+

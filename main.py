@@ -7,6 +7,9 @@ from ocr_utils import analyse_ticket_from_image_file
 from fastapi import Form
 from ocr_utils import save_ticket, normalize
 import csv
+from auth import creer_utilisateur, verifier_utilisateur
+from fastapi import Body
+
 
 app = FastAPI()
 
@@ -111,3 +114,16 @@ def get_commerces():
     except:
         return []
 
+@app.post("/inscription")
+def inscription(data: dict = Body(...)):
+    username = data.get("username")
+    mot_de_passe = data.get("mot_de_passe")
+    ok, message = creer_utilisateur(username, mot_de_passe)
+    return {"ok": ok, "message": message}
+
+@app.post("/connexion")
+def connexion(data: dict = Body(...)):
+    username = data.get("username")
+    mot_de_passe = data.get("mot_de_passe")
+    ok, role = verifier_utilisateur(username, mot_de_passe)
+    return {"ok": ok, "role": role if ok else None}

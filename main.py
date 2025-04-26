@@ -203,7 +203,7 @@ def get_users():
                     "role": row["role"]
                 })
     except Exception as e:
-        print("Erreur lecture users.csv :", e)
+        print("Erreur lecture users.csv:", e)
 
     return users
 

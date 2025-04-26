@@ -9,6 +9,8 @@ from ocr_utils import save_ticket, normalize
 import csv
 from auth import creer_utilisateur, verifier_utilisateur
 from fastapi import Body
+from auth import creer_utilisateur, verifier_utilisateur
+
 
 
 app = FastAPI()

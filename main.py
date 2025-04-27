@@ -151,6 +151,16 @@ def supprimer_compte(data: dict):
     except Exception as e:
         return {"ok": False, "message": str(e)}
 
+@app.post("/reset_users")
+def reset_users():
+    try:
+        with open("users.csv", "w", newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=["username", "password", "role"])
+            writer.writeheader()  # Écrit juste l'en-tête sans aucun utilisateur
+        return {"ok": True, "message": "Fichier users.csv réinitialisé."}
+    except Exception as e:
+        return {"ok": False, "message": str(e)}
+
 
 @app.get("/users")
 def get_users():

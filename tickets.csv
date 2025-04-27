@@ -1,7 +1,1 @@
-date,commerce,montant,catégorie
-23/04/2025,total,28.36,loisir
-16/04/25,total,39.45,sante
-23/04/2025,totalenergies,70,transport
-22/04/2025,supeco,1.95,alimentaire
-22/04/2025,carrefour,1.95,alimentaire
-22/04/2025,totalenergies,20,transport
+date,commerce,montant,catégorie,username

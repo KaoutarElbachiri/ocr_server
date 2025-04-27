@@ -16,6 +16,7 @@ from fastapi import UploadFile, File, Form, Body
 import csv
 import smtplib
 from email.message import EmailMessage
+from fastapi import Query
 
 # Utilisé pour enregistrer le fichier temporaire
 import tempfile
@@ -57,19 +58,19 @@ async def valider_ticket(
     return {"status": "ok", "message": "Ticket enregistré avec succès"}
 
 @app.get("/tickets")
-def get_tickets():
+def get_tickets(username: str = Query(...)):
     tickets = []
     try:
         with open("tickets.csv", "r") as f:
             reader = csv.DictReader(f)
             for i, row in enumerate(reader):
-                row["id"] = i  # on garde l'index réel
-                tickets.append(row)
+                if row.get("username") == username:  # 🔥 On filtre ici !
+                    row["id"] = i
+                    tickets.append(row)
     except Exception as e:
         print("Erreur lecture tickets.csv :", e)
 
-    return list(reversed(tickets))  # on retourne tous les tickets, du plus récent au plus ancien
-
+    return list(reversed(tickets))
 
 from pydantic import BaseModel
 from fastapi import Body

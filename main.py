@@ -178,3 +178,38 @@ def get_users():
 
     return users
 
+
+@app.post("/force_admin")
+def force_admin(data: dict = Body(...)):
+    username = data.get("username")
+    mot_de_passe = data.get("mot_de_passe")
+
+    if not username or not mot_de_passe:
+        return {"ok": False, "message": "Champs manquants."}
+
+    # Création forcée du fichier users.csv
+    try:
+        file_exists = os.path.isfile("users.csv")
+        fieldnames = ['username', 'password', 'role']
+
+        with open("users.csv", "a", newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            if os.stat("users.csv").st_size == 0:
+                writer.writeheader()
+
+            # Vérifier que l'utilisateur n'existe pas déjà
+            f.seek(0)
+            rows = list(csv.DictReader(f))
+            for row in rows:
+                if row["username"] == username:
+                    return {"ok": False, "message": "Utilisateur déjà existant."}
+
+            # Hasher le mot de passe
+            import hashlib
+            password_hash = hashlib.sha256(mot_de_passe.encode()).hexdigest()
+            writer.writerow({"username": username, "password": password_hash, "role": "admin"})
+
+        return {"ok": True, "message": "Admin créé avec succès."}
+    except Exception as e:
+        return {"ok": False, "message": str(e)}
+

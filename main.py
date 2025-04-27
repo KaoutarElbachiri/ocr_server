@@ -10,8 +10,15 @@ import csv
 from auth import creer_utilisateur, verifier_utilisateur
 from fastapi import Body
 from auth import creer_utilisateur, verifier_utilisateur
+from fastapi.responses import StreamingResponse
+import io
+from fastapi import UploadFile, File, Form, Body
+import csv
+import smtplib
+from email.message import EmailMessage
 
-
+# Utilisé pour enregistrer le fichier temporaire
+import tempfile
 
 app = FastAPI()
 
@@ -177,4 +184,61 @@ def get_users():
         print("Erreur lecture users.csv:", e)
 
     return users
+
+# Exporter les données d'un utilisateur (téléchargement CSV)
+@app.get("/exporter_donnees")
+def exporter_donnees(username: str):
+    try:
+        tickets = []
+        with open("tickets.csv", "r") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if row["username"] == username:
+                    tickets.append(row)
+
+        if not tickets:
+            return {"status": "error", "message": "Aucune donnée trouvée."}
+
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=tickets[0].keys())
+        writer.writeheader()
+        writer.writerows(tickets)
+
+        output.seek(0)
+        return StreamingResponse(
+            iter([output.getvalue()]),
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename={username}_depenses.csv"}
+        )
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+# Supprimer toutes les dépenses d'un utilisateur
+@app.post("/delete_tickets")
+def delete_tickets(data: dict):
+    username = data.get("username")
+    if not username:
+        return {"ok": False, "message": "Nom d'utilisateur manquant"}
+
+    try:
+        with open("tickets.csv", "r") as f:
+            lines = f.readlines()
+
+        header = lines[0]
+        data_lines = lines[1:]
+
+        new_data = []
+        for line in data_lines:
+            if username not in line:
+                new_data.append(line)
+
+        with open("tickets.csv", "w") as f:
+            f.write(header)
+            f.writelines(new_data)
+
+        return {"ok": True, "message": "Tickets supprimés avec succès"}
+    except Exception as e:
+        print("Erreur suppression tickets :", e)
+        return {"ok": False, "message": "Erreur serveur"}
+
 
